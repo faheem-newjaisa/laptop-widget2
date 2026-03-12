@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NewJaisa AI Comparison Widget</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Inter, Arial, sans-serif;
+      background: #f4f7fb;
+      color: #111827;
+    }
+
+    .widget {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #fff;
+      padding: 16px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .topbar h1 {
+      margin: 0 0 4px;
+      font-size: 24px;
+    }
+
+    .topbar p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 13px;
+      line-height: 1.45;
+      max-width: 620px;
+    }
+
+    .switcher label {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 6px;
+      color: #dbeafe;
+      font-weight: 700;
+    }
+
+    .switcher select {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: none;
+      min-width: 280px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .banner {
+      margin: 16px 18px 0;
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: #fff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-weight: 800;
+    }
+
+    .banner small {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.95;
+      margin-top: 4px;
+    }
+
+    .status-box {
+      margin: 16px 18px 0;
+      border: 1px solid #dbeafe;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+
+    .status-title {
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .status-line {
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 20px;
+    }
+
+    .status-line.typing::after {
+      content: "▋";
+      display: inline-block;
+      margin-left: 4px;
+      animation: blink 1s steps(1) infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .comparison-wrap {
+      padding: 18px;
+    }
+
+    .comparison-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .comparison-title h2 {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.3;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff7ed;
+      color: #c2410c;
+      border: 1px solid #fdba74;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #475569;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+    }
+    
+    th small {
+      display: block;
+      margin-top: 4px;
+      font-weight: normal;
+    }
+
+    /* Changed from .refurb-row to .refurb-col */
+    .refurb-col {
+      background: #f0fdf4;
+    }
+
+    .score {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 12px;
+      background: #ecfdf5;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .score-low {
+      background: #fff7ed;
+      color: #c2410c;
+      border: 1px solid #fdba74;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      padding: 0 18px 18px;
+    }
+
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: #0f172a;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    li {
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    .alt-section {
+      padding: 0 18px 18px;
+    }
+
+    .alt-section h3 {
+      margin: 0 0 12px;
+      font-size: 17px;
+    }
+
+    .alt-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .alt-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .alt-card h4 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .alt-price {
+      color: #16a34a;
+      font-weight: 800;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .alt-reason {
+      color: #475569;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .footer {
+      padding: 16px 18px;
+      background: #0f172a;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .footer h3 {
+      margin: 0 0 4px;
+      font-size: 19px;
+    }
+
+    .footer p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .footer a {
+      background: #fff;
+      color: #111827;
+      text-decoration: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 800;
+    }
+
+    .loading-row td {
+      height: 52px;
+      background: #e5e7eb;
+      color: transparent;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .loading-row td::after,
+    .alt-card.loading::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.65) 50%,
+        rgba(255,255,255,0) 100%
+      );
+      animation: shimmer 1.2s infinite;
+    }
+
+    .alt-card.loading {
+      min-height: 110px;
+      position: relative;
+      overflow: hidden;
+      background: #e5e7eb;
+    }
+
+    @keyframes shimmer {
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+    @media (max-width: 950px) {
+      .grid, .alt-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="widget">
+    <div class="topbar">
+      <div>
+        <h1>Refurbished vs New: better value</h1>
+        <p>Switch test payloads across categories and let AI find competitor new laptops for the selected refurb model.</p>
+      </div>
+
+      <div class="switcher">
+        <label for="modelSelect">Change dummy laptop payload</label>
+        <select id="modelSelect"></select>
+      </div>
+    </div>
+
+    <div class="banner">
+      <div id="bannerMain">💰 Checking value advantage...</div>
+      <div id="bannerSub"><small>Finding comparable new laptops in the same category</small></div>
+    </div>
+
+    <div class="status-box">
+      <div class="status-title">AI market search status</div>
+      <div class="status-line typing" id="statusLine">Waiting to start...</div>
+    </div>
+
+    <div class="comparison-wrap">
+      <div class="comparison-title">
+        <h2 id="comparisonHeading">Value comparison</h2>
+        <div class="chip" id="comparisonChip">Finding competitors</div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead id="comparisonTableHead">
+            </thead>
+          <tbody id="comparisonTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Why buy from NewJaisa</h3>
+        <ul id="newjaisaList"></ul>
+      </div>
+
+      <div class="card">
+        <h3>Best for users</h3>
+        <ul id="userList"></ul>
+      </div>
+
+      <div class="card">
+        <h3>Key advantages</h3>
+        <ul id="advList"></ul>
+      </div>
+    </div>
+
+    <div class="alt-section">
+      <h3>Other new laptops in this range</h3>
+      <div class="alt-grid" id="altGrid"></div>
+    </div>
+
+    <div class="footer">
+      <div>
+        <h3 id="ctaTitle">Loading CTA...</h3>
+        <p id="ctaText">Please wait...</p>
+      </div>
+      <a href="#" id="ctaBtn">Buy Now</a>
+    </div>
+  </div>
+
+  <script>
+    const DEMO_PAYLOADS = {
+      dell7420: {
+        selected_model: {
+          id: "dell7420",
+          product_title: "Dell Latitude 7420 Refurbished",
+          brand_name: "NewJaisa",
+          our_price: 27999,
+          category: "business",
+          specs: {
+            processor: "Intel Core i5 11th Gen",
+            ram: "16 GB",
+            storage: "512 GB SSD",
+            display: "14 inch FHD",
+            gpu: "Intel Iris Xe",
+            os: "Windows 11 Pro"
+          }
+        }
+      },
+
+      t480: {
+        selected_model: {
+          id: "t480",
+          product_title: "Lenovo ThinkPad T480 Refurbished",
+          brand_name: "NewJaisa",
+          our_price: 23999,
+          category: "business",
+          specs: {
+            processor: "Intel Core i5 8th Gen",
+            ram: "8 GB",
+            storage: "512 GB SSD",
+            display: "14 inch FHD",
+            gpu: "Intel UHD Graphics",
+            os: "Windows 11 Pro"
+          }
+        }
+      },
+
+      gamingg15: {
+        selected_model: {
+          id: "gamingg15",
+          product_title: "Dell G15 Gaming Laptop Refurbished",
+          brand_name: "NewJaisa",
+          our_price: 52999,
+          category: "gaming",
+          specs: {
+            processor: "Intel Core i5 12th Gen",
+            ram: "16 GB",
+            storage: "512 GB SSD",
+            display: "15.6 inch FHD 120Hz",
+            gpu: "NVIDIA RTX 3050",
+            os: "Windows 11"
+          }
+        }
+      },
+
+      macair: {
+        selected_model: {
+          id: "macair",
+          product_title: "MacBook Air Refurbished",
+          brand_name: "NewJaisa",
+          our_price: 42999,
+          category: "portable",
+          specs: {
+            processor: "Intel Core i5",
+            ram: "8 GB",
+            storage: "256 GB SSD",
+            display: "13.3 inch Retina",
+            gpu: "Integrated",
+            os: "macOS"
+          }
+        }
+      },
+
+      creatorbook: {
+        selected_model: {
+          id: "creatorbook",
+          product_title: "ASUS Creator Laptop Refurbished",
+          brand_name: "NewJaisa",
+          our_price: 64999,
+          category: "creator",
+          specs: {
+            processor: "Intel Core i7 11th Gen",
+            ram: "16 GB",
+            storage: "1 TB SSD",
+            display: "15.6 inch FHD",
+            gpu: "NVIDIA GTX 1650",
+            os: "Windows 11 Pro"
+          }
+        }
+      }
+    };
+
+    function formatPrice(v) {
+      return "₹" + Number(v).toLocaleString("en-IN");
+    }
+
+    function scoreBadge(score, good = true) {
+      return `<span class="score ${good ? "" : "score-low"}">${score}/10</span>`;
+    }
+
+    function fillList(id, items = []) {
+      const el = document.getElementById(id);
+      el.innerHTML = "";
+      items.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        el.appendChild(li);
+      });
+    }
+
+    function renderAlternatives(items = []) {
+      const altGrid = document.getElementById("altGrid");
+      altGrid.innerHTML = "";
+
+      if (!items.length) {
+        altGrid.innerHTML = `
+          <div class="alt-card">
+            <h4>No alternatives available</h4>
+            <div class="alt-reason">No suitable new-laptop alternatives were returned.</div>
+          </div>
+        `;
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "alt-card";
+        card.innerHTML = `
+          <h4>${item.product_title}</h4>
+          <div class="alt-price">${item.price_text || formatPrice(item.price)}</div>
+          <div class="alt-reason">${item.reason || ""}</div>
+        `;
+        altGrid.appendChild(card);
+      });
+    }
+
+    function setLoadingState() {
+      document.getElementById("bannerMain").textContent = "💰 Searching similar new laptops...";
+      document.getElementById("bannerSub").innerHTML = "<small>Finding same-category competitors in the same price band</small>";
+      document.getElementById("comparisonHeading").textContent = "Building comparison...";
+      document.getElementById("comparisonChip").textContent = "Searching";
+      document.getElementById("statusLine").textContent = "Searching similar laptops...";
+      document.getElementById("statusLine").classList.add("typing");
+
+      // Set up dummy columns for loading state
+      document.getElementById("comparisonTableHead").innerHTML = `
+        <tr>
+          <th>Feature</th>
+          <th class="refurb-col">Refurbished Option</th>
+          <th>Competitor 1</th>
+          <th>Competitor 2</th>
+          <th>Competitor 3</th>
+        </tr>
+      `;
+
+      document.getElementById("comparisonTableBody").innerHTML = `
+        <tr class="loading-row"><td colspan="5">Loading</td></tr>
+        <tr class="loading-row"><td colspan="5">Loading</td></tr>
+        <tr class="loading-row"><td colspan="5">Loading</td></tr>
+        <tr class="loading-row"><td colspan="5">Loading</td></tr>
+        <tr class="loading-row"><td colspan="5">Loading</td></tr>
+        <tr class="loading-row"><td colspan="5">Loading</td></tr>
+      `;
+
+      document.getElementById("newjaisaList").innerHTML = `
+        <li>Loading...</li><li>Loading...</li><li>Loading...</li><li>Loading...</li>
+      `;
+      document.getElementById("userList").innerHTML = `
+        <li>Loading...</li><li>Loading...</li><li>Loading...</li><li>Loading...</li>
+      `;
+      document.getElementById("advList").innerHTML = `
+        <li>Loading...</li><li>Loading...</li><li>Loading...</li><li>Loading...</li>
+      `;
+
+      document.getElementById("altGrid").innerHTML = `
+        <div class="alt-card loading"></div>
+        <div class="alt-card loading"></div>
+        <div class="alt-card loading"></div>
+      `;
+
+      document.getElementById("ctaTitle").textContent = "Loading recommendation...";
+      document.getElementById("ctaText").textContent = "Please wait while AI finds competitors.";
+      document.getElementById("ctaBtn").textContent = "Loading...";
+    }
+
+    function setErrorState(message) {
+      document.getElementById("comparisonHeading").textContent = "Could not load comparison";
+      document.getElementById("comparisonChip").textContent = "Error";
+      document.getElementById("bannerMain").textContent = "Unable to load value comparison";
+      document.getElementById("bannerSub").innerHTML = `<small>${message}</small>`;
+      document.getElementById("statusLine").textContent = message;
+      document.getElementById("statusLine").classList.remove("typing");
+      document.getElementById("comparisonTableBody").innerHTML = "";
+      document.getElementById("altGrid").innerHTML = `
+        <div class="alt-card">
+          <h4>Unable to load alternatives</h4>
+          <div class="alt-reason">${message}</div>
+        </div>
+      `;
+    }
+
+    async function animateProgress() {
+      const steps = [
+        "Searching similar laptops...",
+        "Finding competitors in same category...",
+        "Checking nearby price range...",
+        "Comparing RAM, storage and GPU...",
+        "Calculating value score...",
+        "Preparing final comparison..."
+      ];
+
+      const statusEl = document.getElementById("statusLine");
+
+      for (const step of steps) {
+        statusEl.textContent = step;
+        await new Promise(resolve => setTimeout(resolve, 650));
+      }
+    }
+
+    const select = document.getElementById("modelSelect");
+    Object.entries(DEMO_PAYLOADS).forEach(([key, payload]) => {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = payload.selected_model.product_title;
+      select.appendChild(option);
+    });
+
+    async function loadWidget() {
+      try {
+        setLoadingState();
+        const progressPromise = animateProgress();
+
+        const payload = DEMO_PAYLOADS[select.value];
+        const model = payload.selected_model;
+
+        const res = await fetch("/api/compare", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        await progressPromise;
+
+        if (!res.ok) {
+          setErrorState(data.error || "API error");
+          return;
+        }
+
+        const ai = data.ai;
+
+        document.getElementById("comparisonHeading").textContent = model.product_title;
+        document.getElementById("comparisonChip").textContent =
+          ai.price_comparison.comparison_note || "Refurbished value advantage";
+
+        document.getElementById("bannerMain").textContent =
+          ai.banner_main || "💰 Better specs at a smarter price";
+        document.getElementById("bannerSub").innerHTML =
+          `<small>${ai.banner_sub || "Refurbished laptops often beat similarly priced new entry-level models."}</small>`;
+
+        document.getElementById("statusLine").textContent = "Competitors found and comparison generated.";
+        document.getElementById("statusLine").classList.remove("typing");
+
+        fillList("newjaisaList", ai.why_buy_from_newjaisa);
+        fillList("userList", ai.best_for_users);
+        fillList("advList", ai.advantages);
+
+        document.getElementById("ctaTitle").textContent = ai.cta_title;
+        document.getElementById("ctaText").textContent = ai.cta_text;
+        document.getElementById("ctaBtn").textContent = ai.cta_button;
+
+        // ---- NEW TRANSPOSED TABLE LOGIC ----
+        const thead = document.getElementById("comparisonTableHead");
+        const tbody = document.getElementById("comparisonTableBody");
+        const candidates = data.comparison_candidates || [];
+
+        // 1. Build Header Row (Models)
+        let headHTML = `<tr>
+          <th>Feature</th>
+          <th class="refurb-col">${model.product_title} <br><small style="color: #16a34a; font-weight: bold;">(Refurbished)</small></th>`;
+        
+        candidates.forEach(item => {
+          headHTML += `<th>${item.product_title} <br><small>(New)</small></th>`;
+        });
+        headHTML += `</tr>`;
+        thead.innerHTML = headHTML;
+
+        // 2. Define Features Array for Rows
+        const features = [
+          { label: "Condition", refurb: "Refurbished", getNew: (item) => item.condition || "New" },
+          { label: "Processor", refurb: model.specs.processor, getNew: (item) => item.specs?.processor || "-" },
+          { label: "RAM", refurb: model.specs.ram, getNew: (item) => item.specs?.ram || "-" },
+          { label: "Storage", refurb: model.specs.storage, getNew: (item) => item.specs?.storage || "-" },
+          { label: "Display / GPU", refurb: `${model.specs.display} / ${model.specs.gpu}`, getNew: (item) => `${item.specs?.display || "-"} / ${item.specs?.gpu || "-"}` },
+          { label: "Price", refurb: `<strong>${formatPrice(model.our_price)}</strong>`, getNew: (item) => formatPrice(item.price) },
+          { label: "Value Score", refurb: scoreBadge(ai.refurb_value_score || 9, true), getNew: (item, i) => scoreBadge((ai.new_value_scores && ai.new_value_scores[i]) || 6, false) },
+          { label: "Verdict", refurb: ai.refurb_verdict || "Better overall value", getNew: (item, i) => (ai.new_verdicts && ai.new_verdicts[i]) || "Higher price for lower specs" }
+        ];
+
+        // 3. Build Body Rows (Specs)
+        tbody.innerHTML = "";
+        features.forEach(feat => {
+          let rowHTML = `<tr>`;
+          rowHTML += `<td><strong>${feat.label}</strong></td>`;
+          rowHTML += `<td class="refurb-col">${feat.refurb}</td>`;
+          candidates.forEach((item, i) => {
+            rowHTML += `<td>${feat.getNew(item, i)}</td>`;
+          });
+          rowHTML += `</tr>`;
+          tbody.innerHTML += rowHTML;
+        });
+
+        renderAlternatives(data.alternatives || []);
+      } catch (err) {
+        console.error(err);
+        setErrorState(err.message || "Request failed");
+      }
+    }
+
+    select.value = "dell7420";
+    select.addEventListener("change", loadWidget);
+    loadWidget();
+  </script>
+</body>
+</html>
