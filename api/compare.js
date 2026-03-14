@@ -21,101 +21,30 @@ export default async function handler(req, res) {
         .trim();
 
     const BLOCKED_NEW_KEYWORDS = [
-      "renewed",
-      "renew",
-      "refurbished",
-      "refurb",
-      "refab",
-      "reconditioned",
-      "pre-owned",
-      "pre owned",
-      "open box",
-      "open-box",
-      "used",
-      "second hand",
-      "second-hand",
-      "unboxed",
-      "like new",
-      "renewal"
+      "renewed", "renew", "refurbished", "refurb", "refab", "reconditioned",
+      "pre-owned", "pre owned", "open box", "open-box", "used", "second hand",
+      "second-hand", "unboxed", "like new", "renewal"
     ];
 
     const BRAND_TOKENS = new Set([
-      "lenovo",
-      "hp",
-      "dell",
-      "asus",
-      "acer",
-      "msi",
-      "samsung",
-      "lg",
-      "apple",
-      "huawei",
-      "microsoft"
+      "lenovo", "hp", "dell", "asus", "acer", "msi", "samsung", "lg",
+      "apple", "huawei", "microsoft"
     ]);
 
     const MODEL_STOPWORDS = new Set([
-      "premium",
-      "refurbished",
-      "refurb",
-      "renewed",
-      "renew",
-      "laptop",
-      "notebook",
-      "windows",
-      "window",
-      "business",
-      "ultrabook",
-      "touchscreen",
-      "touch",
-      "fhd",
-      "uhd",
-      "full",
-      "hd",
-      "ips",
-      "intel",
-      "amd",
-      "core",
-      "ryzen",
-      "edition",
-      "series",
-      "thin",
-      "light",
-      "new",
-      "pc",
-      "computer",
-      "gaming",
-      "ssd",
-      "hdd",
-      "ram",
-      "ddr3",
-      "ddr4",
-      "ddr5",
-      "gb",
-      "tb",
-      "inch",
-      "inchs",
-      "display",
-      "screen",
-      "wifi",
-      "bluetooth",
-      "office",
-      "home",
-      "student",
-      "students",
-      "probook",
-      "latitude",
-      "elitebook",
-      "thinkpad",
-      "vivobook",
-      "expertbook",
-      "macbook",
-      "book"
+      "premium", "refurbished", "refurb", "renewed", "renew", "laptop",
+      "notebook", "windows", "window", "business", "ultrabook", "touchscreen",
+      "touch", "fhd", "uhd", "full", "hd", "ips", "intel", "amd", "core",
+      "ryzen", "edition", "series", "thin", "light", "new", "pc", "computer",
+      "gaming", "ssd", "hdd", "ram", "ddr3", "ddr4", "ddr5", "gb", "tb",
+      "inch", "inchs", "display", "screen", "wifi", "bluetooth", "office",
+      "home", "student", "students", "probook", "latitude", "elitebook",
+      "thinkpad", "vivobook", "expertbook", "macbook", "book"
     ]);
 
     function getPriceFromKeepa(item) {
       const currentStats = item?.stats?.current || [];
       const buyBoxStats = item?.stats?.buyBoxPrice ?? -1;
-
       const amzPrice = currentStats[0] >= 0 ? currentStats[0] : -1;
       const newPrice = currentStats[1] >= 0 ? currentStats[1] : -1;
       const thirdPartyPrice = currentStats[18] >= 0 ? currentStats[18] : -1;
@@ -190,7 +119,6 @@ export default async function handler(req, res) {
     function isSameModelFamily(selectedTitle, candidateTitle) {
       const selectedTokens = extractFamilyTokens(selectedTitle);
       if (selectedTokens.length < 2) return false;
-
       const candidateTokens = new Set(tokenizeTitle(candidateTitle));
       return selectedTokens.every((token) => candidateTokens.has(token));
     }
@@ -243,23 +171,38 @@ export default async function handler(req, res) {
       return (cpuTier * 1000000) + (cpuGen * 10000) + (ramGB * 100) + storageGB;
     }
 
+    // ─── UPDATED: always prefer lower config score; if still tied use price ───
     function pickLowerConfigCandidate(existingCandidate, incomingCandidate) {
       const existingScore = getConfigScore(existingCandidate);
       const incomingScore = getConfigScore(incomingCandidate);
 
       if (incomingScore !== existingScore) {
-        return incomingScore < existingScore ? incomingCandidate : existingCandidate;
+        const winner = incomingScore < existingScore ? incomingCandidate : existingCandidate;
+        const loser  = winner === incomingCandidate ? existingCandidate : incomingCandidate;
+        console.log(
+          `  ⚖️  CONFIG TIE-BREAK: kept [score=${getConfigScore(winner)} ₹${winner.price} rank#${winner.sales_rank}] "${winner.product_title.substring(0, 40)}"`
+          + `\n       dropped [score=${getConfigScore(loser)} ₹${loser.price} rank#${loser.sales_rank}] "${loser.product_title.substring(0, 40)}"`
+        );
+        return winner;
       }
 
+      // Config scores are equal — prefer lower price; sales rank is NOT used as tiebreak
       if (Number(incomingCandidate.price || 0) !== Number(existingCandidate.price || 0)) {
-        return Number(incomingCandidate.price || 0) < Number(existingCandidate.price || 0)
-          ? incomingCandidate
-          : existingCandidate;
+        const winner = Number(incomingCandidate.price || 0) < Number(existingCandidate.price || 0)
+          ? incomingCandidate : existingCandidate;
+        const loser  = winner === incomingCandidate ? existingCandidate : incomingCandidate;
+        console.log(
+          `  ⚖️  PRICE TIE-BREAK (same config score=${existingScore}): kept [₹${winner.price} rank#${winner.sales_rank}] "${winner.product_title.substring(0, 40)}"`
+          + `\n       dropped [₹${loser.price} rank#${loser.sales_rank}] "${loser.product_title.substring(0, 40)}"`
+        );
+        return winner;
       }
 
-      return Number(incomingCandidate.sales_rank || Number.MAX_SAFE_INTEGER) < Number(existingCandidate.sales_rank || Number.MAX_SAFE_INTEGER)
-        ? incomingCandidate
-        : existingCandidate;
+      // Identical config + price — keep existing (no sales-rank tiebreak)
+      console.log(
+        `  ⚖️  EXACT DUPLICATE (config=${existingScore} ₹${existingCandidate.price}): keeping existing "${existingCandidate.product_title.substring(0, 40)}"`
+      );
+      return existingCandidate;
     }
 
     function getTopPercent(positionIndex, totalCount) {
@@ -337,7 +280,8 @@ export default async function handler(req, res) {
           else if (sameAsRefurbModel) rejectionReason = "Same Model Family As Refurb";
 
           if (rejectionReason === "") {
-            console.log(`✅ ACCEPTED: [₹${price}] [Rank #${salesRank}] ${title.substring(0, 45)}...`);
+            const configScore = getConfigScore({ product_title: rawTitle, scraped_raw_specs: `${(item.features || []).join(" ")} ${item.description || ""}` });
+            console.log(`✅ ACCEPTED: [₹${price}] [Rank #${salesRank}] [ConfigScore=${configScore}] ${title.substring(0, 45)}...`);
             validCandidates.push({
               asin: item.asin,
               product_title: rawTitle.replace(/[^\x00-\x7F]/g, "").trim(),
@@ -356,12 +300,14 @@ export default async function handler(req, res) {
       console.error("Server Error:", e);
     }
 
+    // ─── Dedup by model family, keeping lowest config ───
     const dedupedByFamily = new Map();
     for (const candidate of validCandidates) {
       const familyKeyTokens = extractFamilyTokens(candidate.product_title);
       const familyKey = familyKeyTokens.length ? familyKeyTokens.join("|") : normalizeText(candidate.product_title);
 
       if (!dedupedByFamily.has(familyKey)) {
+        console.log(`  📌 NEW FAMILY [${familyKey}]: added "${candidate.product_title.substring(0, 40)}" [₹${candidate.price} rank#${candidate.sales_rank}]`);
         dedupedByFamily.set(familyKey, candidate);
       } else {
         const chosen = pickLowerConfigCandidate(dedupedByFamily.get(familyKey), candidate);
@@ -371,6 +317,7 @@ export default async function handler(req, res) {
 
     validCandidates = Array.from(dedupedByFamily.values());
 
+    // ─── Sort by sales rank (lower = better), then price ───
     validCandidates.sort((a, b) => {
       const rankA = typeof a.sales_rank === "number" ? a.sales_rank : Number.MAX_SAFE_INTEGER;
       const rankB = typeof b.sales_rank === "number" ? b.sales_rank : Number.MAX_SAFE_INTEGER;
@@ -379,10 +326,15 @@ export default async function handler(req, res) {
     });
 
     const totalRankedCandidates = validCandidates.length;
-    validCandidates = validCandidates.map((candidate, index) => ({
-      ...candidate,
-      top_percent_in_price: getTopPercent(index, totalRankedCandidates)
-    }));
+    validCandidates = validCandidates.map((candidate, index) => {
+      const topPercent = getTopPercent(index, totalRankedCandidates);
+      const configScore = getConfigScore(candidate);
+      console.log(
+        `\n🏆 SELECTED #${index + 1}: "${candidate.product_title.substring(0, 55)}"`
+        + `\n   WHY: Sales Rank #${candidate.sales_rank} (top ${topPercent}% of ${totalRankedCandidates} candidates) | ₹${candidate.price} | ConfigScore=${configScore}`
+      );
+      return { ...candidate, top_percent_in_price: topPercent };
+    });
 
     const finalCompetitors = validCandidates.slice(0, 2);
 

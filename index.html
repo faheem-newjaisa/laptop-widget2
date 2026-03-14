@@ -26,10 +26,7 @@
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        html {
-            width: 100%;
-            overflow-x: hidden;
-        }
+        html { width: 100%; overflow-x: hidden; }
         body {
             font-family: 'DM Sans', system-ui, sans-serif;
             background: var(--surface);
@@ -75,10 +72,7 @@
         }
         select:focus { border-color: var(--blue); }
 
-        .container {
-            width: 100%;
-            padding: 0 0 100px;
-        }
+        .container { width: 100%; padding: 0 0 100px; }
 
         .products-header {
             position: sticky;
@@ -89,11 +83,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             width: 100%;
         }
-        .products-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            width: 100%;
-        }
+        .products-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
         .product-col {
             padding: 12px 10px;
             text-align: center;
@@ -162,11 +152,7 @@
             border-bottom: 1px solid var(--border);
             width: 100%;
         }
-        .spec-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            width: 100%;
-        }
+        .spec-row { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
         .spec-cell {
             padding: 14px 10px;
             display: flex; flex-direction: column;
@@ -391,7 +377,7 @@
             "Processor":          `<svg viewBox="0 0 24 24"><path d="M17,11H15V9H17V11M13,11H11V9H13V11M13,15H11V13H13V15M17,15H15V13H17V15M9,11H7V9H9V11M9,15H7V13H9V15M21,11V9H19V11H21M21,15V13H19V15H21M5,11V9H3V11H5M5,15V13H3V15H5M15,21V19H13V21H15M11,21V19H9V21H11M15,5V3H13V5H15M11,5V3H9V5H11M2,7V17H5V19H7V22H17V19H19V17H22V7H19V5H17V2H7V5H5V7H2M7,7H17V17H7V7Z"/></svg>`,
             "RAM":                `<svg viewBox="0 0 24 24"><path d="M2,7V17H3V19H4V21H5V19H6V17H7V19H8V21H9V19H10V17H11V19H12V21H13V19H14V17H15V19H16V21H17V19H18V17H21V15H22V9H21V7H2M7,9H17V15H7V9Z"/></svg>`,
             "Storage (HDD/SSD)":  `<svg viewBox="0 0 24 24"><path d="M6,2H18A2,2 0 0,1 20,4V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V4A2,2 0 0,1 6,2M12,4A1,1 0 0,0 11,5A1,1 0 0,0 12,6A1,1 0 0,0 13,5A1,1 0 0,0 12,4M12,8A1,1 0 0,0 11,9A1,1 0 0,0 12,10A1,1 0 0,0 13,9A1,1 0 0,0 12,8M12,12A1,1 0 0,0 11,13A1,1 0 0,0 12,14A1,1 0 0,0 13,13A1,1 0 0,0 12,12M12,16A4,4 0 1,0 16,20A4,4 0 0,0 12,16M12,18A2,2 0 1,1 10,20A2,2 0 0,1 12,18Z"/></svg>`,
-            "Battery Life":      `<svg viewBox="0 0 24 24"><path d="M16.67,4H15V2H9V4H7.33A1.33,1.33 0 0,0 6,5.33V20.67C6,21.4 6.6,22 7.33,22H16.67A1.33,1.33 0 0,0 18,20.67V5.33A1.33,1.33 0 0,0 16.67,4M15,14H9V12H15V14M15,10H9V8H15V10Z"/></svg>`,
+            "Battery Life":       `<svg viewBox="0 0 24 24"><path d="M16.67,4H15V2H9V4H7.33A1.33,1.33 0 0,0 6,5.33V20.67C6,21.4 6.6,22 7.33,22H16.67A1.33,1.33 0 0,0 18,20.67V5.33A1.33,1.33 0 0,0 16.67,4M15,14H9V12H15V14M15,10H9V8H15V10Z"/></svg>`,
             "OS":                 `<svg viewBox="0 0 24 24"><path d="M3,12V6.75L9,5.43V11.91L3,12M20,3V11.75L10,11.9V5.21L20,3M3,13L9,13.09V19.9L3,18.75V13M10,13.25L20,13.5V22L10,20.09V13.25Z"/></svg>`,
             "Screen Size":        `<svg viewBox="0 0 24 24"><path d="M21,16H3V4H21M21,2H3C1.89,2 1,2.89 1,4V16A2,2 0 0,0 3,18H10V20H8V22H16V20H14V18H21A2,2 0 0,0 23,16V4C23,2.89 22.1,2 21,2Z"/></svg>`,
             "default":            `<svg viewBox="0 0 24 24"><path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.04 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.04 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/></svg>`
@@ -428,10 +414,12 @@
             return grouped;
         }
 
-        function formatTopPercent(value) {
-            const n = Number(value || 0);
-            if (!n || n < 1) return "Top ranked";
-            return `Top ${n}%`;
+        // ─── NEW: format sales rank for display ───
+        function formatSalesRank(rank) {
+            const n = Number(rank || 0);
+            if (!n || n < 1) return "Unranked";
+            if (n >= 1000) return `Rank #${(n / 1000).toFixed(1)}K`;
+            return `Rank #${n}`;
         }
 
         function formatMonthlySold(count) {
@@ -469,15 +457,11 @@
                 const { selected_model: refurb, competitors, review } = data;
                 document.getElementById("headerModelTag").textContent = refurb.product_title;
 
+                // ─── Sort competitors by sales rank (lower = better), then price ───
                 const comps = [...(competitors || [])].sort((a, b) => {
-                    const pctA = Number(a.top_percent_in_price || Number.MAX_SAFE_INTEGER);
-                    const pctB = Number(b.top_percent_in_price || Number.MAX_SAFE_INTEGER);
-                    if (pctA !== pctB) return pctA - pctB;
-
                     const rankA = Number(a.sales_rank || Number.MAX_SAFE_INTEGER);
                     const rankB = Number(b.sales_rank || Number.MAX_SAFE_INTEGER);
                     if (rankA !== rankB) return rankA - rankB;
-
                     return Number(a.price || 0) - Number(b.price || 0);
                 }).slice(0, 2);
 
@@ -499,17 +483,20 @@
                         <div class="product-name">${refurb.product_title}</div>
                         <div class="product-price">₹${refurb.our_price.toLocaleString()}</div>
                     </div>`;
+
                 comps.forEach((c, i) => {
                     const extraClass = i > 0 ? ' comp-extra' : '';
+                    const rankDisplay = formatSalesRank(c.sales_rank);
                     html += `
                     <div class="product-col${extraClass}">
-                        <span class="product-tag tag-new">${formatTopPercent(c.top_percent_in_price)} in price range</span>
+                        <span class="product-tag tag-new">${rankDisplay}</span>
                         <div class="product-name">${c.product_title}</div>
                         <div class="product-price">₹${Number(c.price || 0).toLocaleString()}</div>
-                        <div class="rank-line">${trophySvg} ${formatTopPercent(c.top_percent_in_price)} in this price range</div>
+                        <div class="rank-line">${trophySvg} ${rankDisplay} on Amazon</div>
                         ${c.monthly_sold ? `<div class="sold-line">${formatMonthlySold(c.monthly_sold)}</div>` : ''}
                     </div>`;
                 });
+
                 html += `<div class="col-header-reason">${aiIconSvg} AI Reason</div>`;
                 html += `</div></div>`;
 
