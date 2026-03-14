@@ -41,9 +41,6 @@
             overflow-x: hidden;
         }
 
-        /* ═══════════════════════════════
-           APP BAR
-           ═══════════════════════════════ */
         .app-bar {
             background: var(--card);
             padding: 10px 16px;
@@ -78,17 +75,11 @@
         }
         select:focus { border-color: var(--blue); }
 
-        /* ═══════════════════════════════
-           CONTAINER — full width mobile
-           ═══════════════════════════════ */
         .container {
             width: 100%;
             padding: 0 0 100px;
         }
 
-        /* ═══════════════════════════════
-           PRODUCT HEADER — sticky on mobile
-           ═══════════════════════════════ */
         .products-header {
             position: sticky;
             top: 51px;
@@ -107,7 +98,7 @@
             padding: 12px 10px;
             text-align: center;
             position: relative;
-            min-width: 0; /* prevent overflow */
+            min-width: 0;
         }
         .product-col.col-refurb {
             background: #f0f7ff;
@@ -137,10 +128,25 @@
             font-size: 17px; font-weight: 700; color: var(--navy);
             letter-spacing: -0.5px;
         }
+        .rank-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 4px;
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--orange);
+            flex-wrap: wrap;
+        }
+        .rank-line svg { width: 11px; height: 11px; fill: var(--orange); flex-shrink: 0; }
+        .sold-line {
+            font-size: 8px;
+            font-weight: 600;
+            color: var(--muted);
+            margin-top: 2px;
+        }
 
-        /* ═══════════════════════════════
-           SECTION LABELS
-           ═══════════════════════════════ */
         .section-label {
             padding: 8px 14px; font-size: 9px; font-weight: 700;
             text-transform: uppercase; letter-spacing: 1px;
@@ -151,9 +157,6 @@
         }
         .section-label svg { width: 13px; height: 13px; fill: var(--muted); flex-shrink: 0; }
 
-        /* ═══════════════════════════════
-           SPEC ROWS — 2 cols on mobile
-           ═══════════════════════════════ */
         .spec-row-wrap {
             background: var(--card);
             border-bottom: 1px solid var(--border);
@@ -170,7 +173,7 @@
             align-items: center; justify-content: center;
             text-align: center; gap: 3px;
             position: relative;
-            min-width: 0; /* prevent overflow */
+            min-width: 0;
         }
         .spec-cell.col-refurb {
             background: #f8fbff;
@@ -206,9 +209,6 @@
         .winner-badge svg { width: 9px; height: 9px; stroke: white; fill: none; stroke-width: 3; }
         .spec-cell.winner .winner-badge { display: inline-flex; }
 
-        /* ═══════════════════════════════
-           AI REASON — auto-reveal on mobile
-           ═══════════════════════════════ */
         .reason-strip {
             display: grid;
             grid-template-rows: 0fr;
@@ -240,9 +240,6 @@
         .spec-row-wrap.reason-visible .reason-strip { grid-template-rows: 1fr; }
         .spec-row-wrap.reason-visible .reason-strip-content { opacity: 1; padding: 10px 14px; }
 
-        /* ═══════════════════════════════
-           VERDICT BAR — fixed bottom mobile
-           ═══════════════════════════════ */
         .verdict-bar {
             position: fixed;
             bottom: 0; left: 0; right: 0;
@@ -262,9 +259,6 @@
             font-weight: 400; color: rgba(255,255,255,0.9);
         }
 
-        /* ═══════════════════════════════
-           LOADING / ERROR
-           ═══════════════════════════════ */
         .loading-state {
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
@@ -284,19 +278,11 @@
         .error-state h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
         .error-state p { font-size: 11px; color: var(--slate); line-height: 1.5; max-width: 300px; margin: 0 auto; }
 
-        /* ═══════════════════════════════
-           DESKTOP-ONLY ELEMENTS
-           Hidden on mobile — display:none !important
-           guarantees no grid participation
-           ═══════════════════════════════ */
         .pc-label { display: none !important; }
         .pc-reason { display: none !important; }
         .col-header-label { display: none !important; }
         .col-header-reason { display: none !important; }
 
-        /* ═══════════════════════════════
-           DESKTOP — 769px+
-           ═══════════════════════════════ */
         @media (min-width: 769px) {
             .container { max-width: 1280px; margin: 0 auto; padding: 16px 24px 80px; }
 
@@ -330,6 +316,8 @@
             .product-name { font-size: 11px; min-height: 31px; }
             .product-price { font-size: 18px; }
             .product-tag { font-size: 9px; }
+            .rank-line { font-size: 9px; }
+            .sold-line { font-size: 8px; }
 
             .product-col.comp-extra { display: block; }
             .spec-cell.comp-extra { display: flex; }
@@ -440,6 +428,19 @@
             return grouped;
         }
 
+        function formatTopPercent(value) {
+            const n = Number(value || 0);
+            if (!n || n < 1) return "Top ranked";
+            return `Top ${n}%`;
+        }
+
+        function formatMonthlySold(count) {
+            const n = Number(count || 0);
+            if (!n) return "";
+            if (n >= 1000) return `${Math.round(n / 1000)}K+ bought/mo`;
+            return `${n}+ bought/mo`;
+        }
+
         let scrollObserver = null;
 
         async function run() {
@@ -468,17 +469,28 @@
                 const { selected_model: refurb, competitors, review } = data;
                 document.getElementById("headerModelTag").textContent = refurb.product_title;
 
-                const comps = competitors.slice(0, 2);
+                const comps = [...(competitors || [])].sort((a, b) => {
+                    const pctA = Number(a.top_percent_in_price || Number.MAX_SAFE_INTEGER);
+                    const pctB = Number(b.top_percent_in_price || Number.MAX_SAFE_INTEGER);
+                    if (pctA !== pctB) return pctA - pctB;
+
+                    const rankA = Number(a.sales_rank || Number.MAX_SAFE_INTEGER);
+                    const rankB = Number(b.sales_rank || Number.MAX_SAFE_INTEGER);
+                    if (rankA !== rankB) return rankA - rankB;
+
+                    return Number(a.price || 0) - Number(b.price || 0);
+                }).slice(0, 2);
+
                 const numComps = comps.length;
                 const grouped = groupRows(review.comparison_rows);
 
                 const checkSvg = `<div class="winner-badge"><svg viewBox="0 0 24 24"><path d="M20 6L9 17L4 12" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
                 const aiIconSvg = `<svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/></svg>`;
                 const gearSvg = `<svg viewBox="0 0 24 24"><path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.04 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.04 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/></svg>`;
+                const trophySvg = `<svg viewBox="0 0 24 24"><path d="M18,2H6C5.45,2 5,2.45 5,3V5.26C3.87,5.6 3,6.67 3,7.92C3,9.5 4.22,10.78 5.76,10.97C6.28,12.06 7.25,12.9 8.43,13.26L8,18H7A2,2 0 0,0 5,20V21H19V20A2,2 0 0,0 17,18H16L15.57,13.26C16.75,12.9 17.72,12.06 18.24,10.97C19.78,10.78 21,9.5 21,7.92C21,6.67 20.13,5.6 19,5.26V3C19,2.45 18.55,2 18,2M5,7.92C5,7.65 5.22,7.42 5.5,7.42H6V9.42C5.43,9.17 5,8.59 5,7.92M18,9.42V7.42H18.5C18.78,7.42 19,7.65 19,7.92C19,8.59 18.57,9.17 18,9.42Z"/></svg>`;
 
                 let html = '';
 
-                // ── PRODUCT HEADER ──
                 html += `<div class="products-header"><div class="products-grid">`;
                 html += `<div class="col-header-label">Spec</div>`;
                 html += `
@@ -491,15 +503,16 @@
                     const extraClass = i > 0 ? ' comp-extra' : '';
                     html += `
                     <div class="product-col${extraClass}">
-                        <span class="product-tag tag-new">Amazon New${numComps > 1 ? ' #' + (i+1) : ''}</span>
+                        <span class="product-tag tag-new">${formatTopPercent(c.top_percent_in_price)} in price range</span>
                         <div class="product-name">${c.product_title}</div>
-                        <div class="product-price">₹${c.price.toLocaleString()}</div>
+                        <div class="product-price">₹${Number(c.price || 0).toLocaleString()}</div>
+                        <div class="rank-line">${trophySvg} ${formatTopPercent(c.top_percent_in_price)} in this price range</div>
+                        ${c.monthly_sold ? `<div class="sold-line">${formatMonthlySold(c.monthly_sold)}</div>` : ''}
                     </div>`;
                 });
                 html += `<div class="col-header-reason">${aiIconSvg} AI Reason</div>`;
                 html += `</div></div>`;
 
-                // ── GROUPED SPEC ROWS ──
                 for (const [groupName, rows] of Object.entries(grouped)) {
                     if (!rows.length) continue;
 
@@ -556,7 +569,6 @@
                     html += `</div>`;
                 }
 
-                // ── VERDICT ──
                 html += `
                 <div class="verdict-bar">
                     <div class="verdict-label">Market Verdict</div>
@@ -586,7 +598,6 @@
                     const compCols = Array(numComps).fill('1fr').join(' ');
                     el.style.gridTemplateColumns = `170px 1fr ${compCols} 280px`;
                 } else {
-                    // CRITICAL: reset to pure 2-col on mobile
                     el.style.gridTemplateColumns = '1fr 1fr';
                 }
             });
